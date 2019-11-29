@@ -56,6 +56,11 @@ android {
 }
 
 repositories {
+    google()
+    jcenter()
+    flatDir {
+        dirs 'libs'
+    }
     // ref: https://www.baeldung.com/maven-local-repository
     mavenLocal()
     maven {
@@ -65,11 +70,6 @@ repositories {
     maven {
         // Android JSC is installed from npm
         url "$rootDir/../node_modules/jsc-android/dist"
-    }
-    google()
-    jcenter()
-    flatDir {
-        dirs 'libs'
     }
 }
 
