@@ -58,7 +58,6 @@ android {
 repositories {
     google()
     jcenter()
-    flatDir { dirs "libs" }
     // ref: https://www.baeldung.com/maven-local-repository
     mavenLocal()
     maven {
@@ -73,8 +72,8 @@ repositories {
 
 dependencies {
     //noinspection GradleDynamicVersion
-    implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation(name: 'A26Library-debug', ext: 'aar')
+    implementation 'com.facebook.react:react-native:+'
+    implementation project(path: ':A26Library-debug')  // From node_modules
 }
 
 def configureReactNativePom(def pom) {
