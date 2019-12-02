@@ -58,7 +58,7 @@ android {
 repositories {
     google()
     jcenter()
-    flatDir { dirs "$rootDir/../node_modules/react-native-ciontek/android/libs" }
+    flatDir { dirs "libs" }
     // ref: https://www.baeldung.com/maven-local-repository
     mavenLocal()
     maven {
