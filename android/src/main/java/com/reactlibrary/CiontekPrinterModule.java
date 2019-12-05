@@ -11,8 +11,9 @@ import vpos.apipackage.PrintInitException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-//import android.util.Log;
+import android.util.Log;
 import android.os.Handler;
+import android.widget.Toast;  
 
 
 public class CiontekPrinterModule extends ReactContextBaseJavaModule {
@@ -66,9 +67,16 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
     public void testPrint() {
         Thread myThread = new Thread() {
             public void run() {
+                Log.v("Ciontek", "Prepare ...");
+               
                 ret = posApiHelper.PrintInit(2, 24, 24, 0);
+                // checkRet(ret, "ret PrintInit");
+                
+                Log.v("Ciontek", "ret init: " + ret);
                 ret = posApiHelper.PrintSetFont((byte) 24, (byte) 24, (byte) 0x00);
-            
+                // checkRet(ret, "ret PrintSetFont");
+                Log.v("Ciontek", "ret set font: " + ret);
+                    
         
                 posApiHelper.PrintStr("中文:你好，好久不见。\n");
                 posApiHelper.PrintStr("英语:Hello, Long time no see   ￡ ：2089.22\n");
@@ -86,11 +94,12 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
                 posApiHelper.PrintStr("                                         \n");
                 posApiHelper.PrintStr("                                         \n");
         
-                try {
-                    ret = posApiHelper.PrintStart();
-                } catch (Exception ex) {
-                    // BaseActivity.showSnackBar(null, "Printer cannot found", 1500);
-                }
+                
+                ret = posApiHelper.PrintStart();
+                // checkRet(ret, "ret PrintStart");
+                Log.v("Ciontek", "ret print start: " + ret);
+
+                   
 
             }
        
@@ -105,6 +114,12 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
         return ret;
     }
 
+    private void checkRet(int ret, String message) {
+        if (ret < 0) {
+            Toast.makeText(mContext, message + " : " + ret,Toast.LENGTH_SHORT).show();  
+        }
+    }
+ 
     
     
 }
