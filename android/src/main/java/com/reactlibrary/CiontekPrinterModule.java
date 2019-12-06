@@ -213,10 +213,15 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void checkPrinterStatus(Callback cb) {
-        emv = emvcoHelper.AdapterUartBaud();
-        ret = posApiHelper.PrintCheckStatus();
-        
-        cb.invoke(ret);
+        try {
+            emv = emvcoHelper.AdapterUartBaud();
+            ret = posApiHelper.PrintCheckStatus();
+
+            cb.invoke(ret);
+        } catch(Exception e) {
+            ret = -1;
+            cb.invoke(ret);
+        }
     }
 
     private void checkRet(int ret, String message) {
