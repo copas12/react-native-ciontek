@@ -46,6 +46,7 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
     private int BatteryV;
     private int voltage_level;
+    private int emv;
 
     final int PRINT_TEST = 0;
     final int PRINT_UNICODE = 1;
