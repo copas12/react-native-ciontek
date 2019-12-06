@@ -159,6 +159,11 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
                 posApiHelper.PrintStr("الفبای فارسی گروه سی‌ودوگانهٔ");// 阿拉伯语
                 posApiHelper.PrintStr("سی‌ودوگانهٔ");
                 posApiHelper.PrintStr("حروف الفبا یا حروف هجای فارسی می‌گویند");
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
 
                 ret = posApiHelper.PrintStart();
                 // ret = print.Lib_PrnStart();
@@ -207,9 +212,11 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public int checkPrinterStatus() {
+    public void checkPrinterStatus(Callback cb) {
+        emv = emvcoHelper.AdapterUartBaud();
         ret = posApiHelper.PrintCheckStatus();
-        return ret;
+        
+        cb.invoke(ret);
     }
 
     private void checkRet(int ret, String message) {
