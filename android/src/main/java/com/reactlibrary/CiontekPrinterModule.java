@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.util.Base64;
 
 public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
@@ -80,15 +81,16 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
         }
     }
 
-    // private static final String DISABLE_FUNCTION_LAUNCH_ACTION = "android.intent.action.DISABLE_FUNCTION_LAUNCH";
+    // private static final String DISABLE_FUNCTION_LAUNCH_ACTION =
+    // "android.intent.action.DISABLE_FUNCTION_LAUNCH";
     // private void disableFunctionLaunch(boolean state) {
-    //     Intent disablePowerKeyIntent = new Intent(DISABLE_FUNCTION_LAUNCH_ACTION);
-    //     if (state) {
-    //         disablePowerKeyIntent.putExtra("state", true);
-    //     } else {
-    //         disablePowerKeyIntent.putExtra("state", false);
-    //     }
-    //     sendBroadcast(disablePowerKeyIntent);
+    // Intent disablePowerKeyIntent = new Intent(DISABLE_FUNCTION_LAUNCH_ACTION);
+    // if (state) {
+    // disablePowerKeyIntent.putExtra("state", true);
+    // } else {
+    // disablePowerKeyIntent.putExtra("state", false);
+    // }
+    // sendBroadcast(disablePowerKeyIntent);
     // }
 
     ServiceConnection serviceConnection = new ServiceConnection() {
@@ -111,6 +113,125 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
         }
     };
+
+    @ReactMethod
+    public void printText(final String text) {
+        int emv = emvcoHelper.AdapterUartBaud();
+        Log.v("Ciontek", "emv init: " + emv);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                posApiHelper.SysLogSwitch(1);
+                Log.v("Ciontek", "Prepare ...");
+
+                try {
+                    ret = posApiHelper.PrintInit();
+                } catch (PrintInitException e) {
+                    e.printStackTrace();
+                }
+                Log.v("Ciontek", "ret init: " + ret);
+
+                posApiHelper.PrintSetGray(1);
+
+                ret = posApiHelper.PrintCheckStatus();
+                if (ret == -1) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -2) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -3) {
+                    RESULT_CODE = -1;
+                    return;
+                } else {
+                    RESULT_CODE = 0;
+                }
+                Log.v("Ciontek", "ret check status: " + ret + ", result_code: " + RESULT_CODE);
+
+                posApiHelper.PrintSetFont((byte) 24, (byte) 24, (byte) 0x00);
+                Log.v("Ciontek", "ret set font: " + ret);
+
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(text);
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintStr(" \n");
+
+                ret = posApiHelper.PrintStart();
+                // ret = print.Lib_PrnStart();
+                Log.v("Ciontek", "ret print start: " + ret);
+            }
+        }).start();
+    }
+
+    @ReactMethod
+    public void testPrintPic(final String base64encodeStr) {
+        // Log.v("Ciontek", "bitmap: " + base64encodeStr);
+        int emv = emvcoHelper.AdapterUartBaud();
+        Log.v("Ciontek", "emv init: " + emv);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                posApiHelper.SysLogSwitch(1);
+                Log.v("Ciontek", "Prepare ...");
+
+                try {
+                    ret = posApiHelper.PrintInit();
+                } catch (PrintInitException e) {
+                    e.printStackTrace();
+                }
+                Log.v("Ciontek", "ret init: " + ret);
+
+                posApiHelper.PrintSetGray(1);
+
+                ret = posApiHelper.PrintCheckStatus();
+                if (ret == -1) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -2) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -3) {
+                    RESULT_CODE = -1;
+                    return;
+                } else {
+                    RESULT_CODE = 0;
+                }
+                Log.v("Ciontek", "ret check status: " + ret + ", result_code: " + RESULT_CODE);
+
+                posApiHelper.PrintSetFont((byte) 24, (byte) 24, (byte) 0x00);
+                Log.v("Ciontek", "ret set font: " + ret);
+
+                final long start_BmpD = System.currentTimeMillis();
+                byte[] bytes = Base64.decode(base64encodeStr, Base64.DEFAULT);
+                Bitmap mBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                final long end_BmpD = System.currentTimeMillis();
+                final long decodetime = end_BmpD - start_BmpD;
+                final long start_PrintBmp = System.currentTimeMillis();
+
+                Log.v("Ciontek", "bitmap image: " + mBitmap);
+
+                ret = posApiHelper.PrintBmp(mBitmap);
+                posApiHelper.PrintStr("                                         \n");
+                Log.v("Ciontek", "ret bmp: " + ret);
+                if (ret == 0) {
+                    posApiHelper.PrintStr("\n\n\n");
+                    posApiHelper.PrintStr("                                         \n");
+                    posApiHelper.PrintStr("                                         \n");
+
+                    ret = posApiHelper.PrintStart();
+                } else {
+                    RESULT_CODE = -1;
+                }
+
+                ret = posApiHelper.PrintStart();
+                // ret = print.Lib_PrnStart();
+                Log.v("Ciontek", "ret print start: " + ret);
+            }
+        }).start();
+    }
 
     @ReactMethod
     public void testPrint() {
@@ -219,7 +340,7 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
             ret = posApiHelper.PrintCheckStatus();
 
             cb.invoke(ret);
-        } catch(Exception e) {
+        } catch (Exception e) {
             ret = -1;
             cb.invoke(ret);
         }
