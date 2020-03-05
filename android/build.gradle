@@ -77,7 +77,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation(name: 'A26Library-debug', ext: 'aar')
-
+    implementation files('libs/zxing-core-3.3.0.jar')
 }
 
 def configureReactNativePom(def pom) {

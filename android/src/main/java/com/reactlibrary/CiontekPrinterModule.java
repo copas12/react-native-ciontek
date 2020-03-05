@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.util.Base64;
+import com.google.zxing.BarcodeFormat;
 
 public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
@@ -113,6 +114,56 @@ public class CiontekPrinterModule extends ReactContextBaseJavaModule {
 
         }
     };
+
+    @ReactMethod
+    public void  printQR(final String content) {
+        int emv = emvcoHelper.AdapterUartBaud();
+        Log.v("Ciontek", "emv init: " + emv);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                posApiHelper.SysLogSwitch(1);
+                Log.v("Ciontek", "Prepare ...");
+
+                try {
+                    ret = posApiHelper.PrintInit();
+                } catch (PrintInitException e) {
+                    e.printStackTrace();
+                }
+                Log.v("Ciontek", "ret init: " + ret);
+
+                posApiHelper.PrintSetGray(1);
+
+                ret = posApiHelper.PrintCheckStatus();
+                if (ret == -1) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -2) {
+                    RESULT_CODE = -1;
+                    return;
+                } else if (ret == -3) {
+                    RESULT_CODE = -1;
+                    return;
+                } else {
+                    RESULT_CODE = 0;
+                }
+                Log.v("Ciontek", "ret check status: " + ret + ", result_code: " + RESULT_CODE);
+
+                posApiHelper.PrintSetFont((byte) 24, (byte) 24, (byte) 0x00);
+                Log.v("Ciontek", "ret set font: " + ret);
+
+                posApiHelper.PrintStr(" \n");
+                posApiHelper.PrintQrCode_Cut(content, 360, 360, BarcodeFormat.QR_CODE);
+
+                Print.Lib_PrnSetAlign(0);
+
+                ret = posApiHelper.PrintStart();
+                // ret = print.Lib_PrnStart();
+                Log.v("Ciontek", "ret print start: " + ret);
+            }
+        }).start();
+    }
 
     @ReactMethod
     public void printText(final String text) {
